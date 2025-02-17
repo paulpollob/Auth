@@ -3,12 +3,12 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 import { app } from '../Auth/Auth';
 import { toast } from 'react-toastify';
+import { collection, getDocs, getFirestore } from 'firebase/firestore';
 
 
 const auth = getAuth(app);
-
-
-
+const db = getFirestore(app);
+ 
 export const UserContext = createContext();
 
 
@@ -32,8 +32,27 @@ const Context = ({ children }) => {
                 // ...
             }
         });
-        return () => unsubscribe();
+        return () => unsubscribe(); 
     }, [])
+
+
+    useEffect(()=>{
+        
+        const getUsers = async () => {
+            const querySnapshot = await getDocs(collection(db, "users"));
+            querySnapshot.forEach((doc) => {
+                console.log(`${doc.id} => ${doc.data()}`);
+                console.log(doc.data())
+                setAllUsers(doc.data())
+            });
+
+        }
+        return () => getUsers(); 
+    }, [])
+
+
+
+
 
 
     const register = (email, password) => createUserWithEmailAndPassword(auth, email, password)
@@ -47,10 +66,28 @@ const Context = ({ children }) => {
     const sccMsg = (msg) => toast.success(msg)
 
 
- 
-    const [user, setUser] = useState("notLoadedYet"); 
+    const [allUsers, setAllUsers] = useState({});
+    const [user, setUser] = useState("notLoadedYet");
+    const [applications, setApplications] = useState([])
 
-    const value = { user, setUser, login, register, logOut, infoMsg, warnMsg, errMsg, sccMsg }
+    useEffect(()=>{
+        
+        const getUsers = async () => {
+            const querySnapshot = await getDocs(collection(db, "applications")); 
+            let d = [];
+            querySnapshot.forEach((doc) => {
+                console.log(`${doc.id} => ${doc.data()}`);
+                if(!doc.id.includes(user.uid)){
+                    d.push(doc.data())
+                } 
+            });
+            setApplications(d)
+        }
+        return () => getUsers(); 
+    }, [user])
+
+
+    const value = { user, setUser, login, register, logOut, infoMsg, warnMsg, errMsg, sccMsg, allUsers, applications }
     return (
         <UserContext.Provider value={value}>
             {children}

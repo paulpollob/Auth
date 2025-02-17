@@ -3,7 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/Context';
 import sample from "../assets/sample.jpg";
 import Loading from '../components/Loading';
-import { FloatingLabel } from 'flowbite-react';
+// import { FloatingLabel } from 'flowbite-react';
 import Field from '../components/Field';
 
 const Registration = () => {
