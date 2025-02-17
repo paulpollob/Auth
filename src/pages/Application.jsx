@@ -79,15 +79,13 @@ const Application = () => {
             console.log("formData: ", formData)
             const res = await setDoc(doc(db, "applications", formData.docId), formData);
             sccMsg("Successfull!!!")
-            console.log("HK:response ")
             console.log(res)
         }
-        catch (error){
+        catch (error) {
             console.error("Error updating document: ", error);
         }
     }
     const applicationAction = async (docId, action) => {
-        console.log("HK: ", docId, action)
         try {
             await setDoc(doc(db, "applications", docId), { approved: action }, { merge: true });
             sccMsg("Successfull!!!")
@@ -95,7 +93,15 @@ const Application = () => {
         } catch (error) {
             errMsg("Error updating document: ")
             console.error("Error updating document: ", error);
-        } 
+        }
+    }
+    const manualApplication = () =>{
+        setFormData({
+            to: "",
+            toName: "",
+            subject: "",
+            body: ""
+        })
     }
 
 
@@ -115,6 +121,9 @@ const Application = () => {
                 {/* <Select className='text-black' options={userOptions} /> */}
                 <Button onClick={() => setOpen(true)} variant="gradient">
                     Generate Application
+                </Button>
+                <Button onClick={() => manualApplication()} variant="gradient">
+                    Manual Application
                 </Button>
                 <Dialog open={open} handler={() => setOpen(!open)}>
                     <DialogHeader className='text-black'>Generate Application</DialogHeader>
@@ -154,7 +163,7 @@ const Application = () => {
                             <Select options={userOptions}
                                 className="  w-full h-full text-black"
                                 name="toName"
-                                onChange={(newValue) => setFormData({ ...formData, ['toEmail']: newValue.label, ['toId']: newValue.value, ['docId']: user.uid + newValue.value, ['toName']: newValue.name })
+                                onChange={(newValue) => setFormData({ ...formData, ['toEmail']: newValue.label, ['toId']: newValue.value, ['docId']: user.uid + newValue.value+Date.now(), ['toName']: newValue.name })
                                 }
                             // onCreateOption={handleCreate} 
                             />
@@ -176,13 +185,19 @@ const Application = () => {
 
                             />
                         </div>
-                        {typeof formData.toId}
+                        {(formData?.approved == 2) && <p>Accepted by {formData.toName}</p>}
+                        {(formData?.approved == 1) && <p>Rejected by {formData.toName}</p>}
                         {
                             (!formData?.toId?.includes(user.uid)) ?
-                                (formData?.approved != undefined) && <Button onClick={() => sendAction()} className="mt-6" fullWidth>
-                                    Send
-                                </Button>
-                                 :
+                                (formData?.approved == null) &&
+                                    <Button onClick={() => sendAction()} className="mt-6" fullWidth>
+                                        Send
+                                    </Button>
+                                    // :
+                                    // <Button onClick={() => sendAction()} className="mt-6" fullWidth>
+                                    //     Send
+                                    // </Button>
+                                :
                                 <div className='flex gap-2'>
                                     <Button onClick={() => applicationAction(formData.docId, 2)} style={{ backgroundColor: "green" }} className="mt-6 bg-teal-500 " fullWidth>
                                         Accept
