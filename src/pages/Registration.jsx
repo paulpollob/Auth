@@ -5,6 +5,7 @@ import sample from "../assets/sample.jpg";
 import Loading from '../components/Loading';
 // import { FloatingLabel } from 'flowbite-react';
 import Field from '../components/Field';
+import { doc, setDoc } from 'firebase/firestore';
 
 const Registration = () => {
 
@@ -16,7 +17,7 @@ const Registration = () => {
         width: "100%",
     };
 
-    const { user, setUser, register, errMsg, sccMsg } = useContext(UserContext);
+    const { user, setUser, register, errMsg, sccMsg, db } = useContext(UserContext);
 
     const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
@@ -26,6 +27,8 @@ const Registration = () => {
         confirmPassword: "",
         phoneNumber: "",
         address: "",
+        dept: "",
+        userType: "",
     });
 
 
@@ -67,8 +70,16 @@ const Registration = () => {
             console.log("Registration Successful", formData);
 
             register(formData.email, formData.password)
-                .then((userCredential) => {
+                .then(async(userCredential) => {
                     const user = userCredential.user;
+                    
+                    await setFormData({ ...formData, ['uid']: user.uid })
+                    const newFform = { ...formData, ['uid']: user.uid }
+                    const res = await setDoc(doc(db, "users", user.uid), newFform);
+
+                    console.log("HK:response ")
+                    console.log(res)
+                    // await setFormData({ ...formData, ['uid']: user.uid })
                     console.log("HK user: ", user)
                     sccMsg("successfull!!!")
                 })
@@ -96,6 +107,8 @@ const Registration = () => {
                                     <Field errors={errors} lblStr={"password"} type={'password'} value={formData.password} handleChange={handleChange}></Field>
                                     <Field errors={errors} lblStr={"confirmPassword"} type={'password'} value={formData.confirmPassword} handleChange={handleChange}></Field>
                                     <Field errors={errors} lblStr={"phoneNumber"} type={'text'} value={formData.phoneNumber} handleChange={handleChange}></Field>
+                                    <Field errors={errors} lblStr={"dept"} type={'text'} value={formData.dept} handleChange={handleChange}></Field>
+                                    <Field errors={errors} lblStr={"userType"} type={'text'} value={formData.userType} handleChange={handleChange}></Field>
                                     <div>
                                         <label htmlFor="address">Address:</label>
                                         <textarea

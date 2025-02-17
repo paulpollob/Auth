@@ -12,26 +12,22 @@ import {
     Typography,
 } from '@material-tailwind/react';
 import React, { useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Select from 'react-select'
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { doc, getFirestore, setDoc } from "firebase/firestore";
 import { app } from '../Auth/Auth';
 import { UserContext } from '../context/Context';
+import { Container, Button as Buttonr, Link as Linkr } from 'react-floating-action-button'
 
 const Application = () => {
-    const { user, applications } = useContext(UserContext)
+    const { user, applications, userOptions, db, sccMsg, errMsg } = useContext(UserContext)
     const [msg, setMsg] = useState([]);
     const [title, setTitle] = useState("");
     const [body, setBody] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const [open, setOpen] = React.useState(false);
-    const options = [
-        { value: 'chocolate', label: 'Chocolate' },
-        { value: 'strawberry', label: 'Strawberry' },
-        { value: 'vanilla', label: 'Vanilla' }
-    ] 
     const [isClearable, setIsClearable] = useState(true);
     const [isSearchable, setIsSearchable] = useState(true);
     const [isDisabled, setIsDisabled] = useState(false);
@@ -40,15 +36,15 @@ const Application = () => {
     const [providedText, setProvidedText] = useState("")
     const [formData, setFormData] = useState({
         to: "",
+        toName: "",
         subject: "",
         body: ""
     })
-    const db = getFirestore(app);
+
 
 
     const providedOnChange = (e) => {
         setProvidedText(e.target.value)
-        console.log("HK user11: ", user)
     }
     const formInputOnChange = (e) => {
         const { name, value } = e.target
@@ -56,38 +52,67 @@ const Application = () => {
             ...prevData,
             [name]: value
         }));
-        console.log("HK: ", name, value)
     }
     const generateButtonAction = async () => {
         // const prompt = `My name is Prokash. My background is computer science and engineering. The application subject is: '${title}' and the provided text is: '${body}'. Generate a formal application for me in JSON format with attributes like 'subject', 'body', 'to', 'from'. Only return JSON data without any explanations.`;
         const prompt = `My name is Prokash. My background is computer science and engineering. about the application the provided text is: '${providedText}'. Generate a formal application for me in JSON format with attributes like 'subject', 'body', 'to', 'from'. Only return JSON data without any explanations.`;
+        // const model="gemini-2.0-flash";
+        const genAI = new GoogleGenerativeAI("AIzaSyA_nby_S6KHpNptXTcpgcSc3ZDGiOPP944");
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
         const result = await model.generateContent(prompt);
         const response = await result.response;
         let text = await response.text();
-        text = text.replace(/^```json\s*/, "").replace(/\s*```$/, "").replace(/```/, "").trim();;
-        console.log(text)
+        text = text.replace(/^```json\s*/, "").replace(/\s*```$/, "").replace(/```/, "").trim();
         const ob = await JSON.parse(text)
-        console.log(ob);
-        console.log(ob.subject);
         setFormData(ob)
         setOpen(!open);
+    }
+    const applicationItemClick = (id) => {
+        const filtered = applications.find(d => d.docId === id)
+        console.log("filtered: ", filtered)
+        setFormData(filtered)
+    }
+    const sendAction = async () => {
+        console.log("formData: db", db)
+        try {
+            setFormData({ ...formData, ['approved']: 0, ['update']: false })
+            console.log("formData: ", formData)
+            const res = await setDoc(doc(db, "applications", formData.docId), formData);
+            sccMsg("Successfull!!!")
+            console.log("HK:response ")
+            console.log(res)
+        }
+        catch (error){
+            console.error("Error updating document: ", error);
+        }
+    }
+    const applicationAction = async (docId, action) => {
+        console.log("HK: ", docId, action)
+        try {
+            await setDoc(doc(db, "applications", docId), { approved: action }, { merge: true });
+            sccMsg("Successfull!!!")
+            console.log("Document updated successfully!");
+        } catch (error) {
+            errMsg("Error updating document: ")
+            console.error("Error updating document: ", error);
+        } 
     }
 
 
     return (
-        <div className='flex'>
-            Hare Krishna from applications
-
+        <div className='flex justify-around'>
             <div>
-                <h1>Applications</h1>
-                {
-                    applications.map(d=>
-                        <ApplicationMenu key={d.uid} data={d}></ApplicationMenu>
-                    )
-                }
+                <h5 className='mb-4 text-2xl text-slate-400'>Applications</h5>
+                <div className='flex flex-col gap-2'>
+                    {
+                        applications.map((data, index) =>
+                            <ApplicationMenu key={index} action={() => applicationItemClick(data.docId)} data={data}></ApplicationMenu>
+                        )
+                    }
+                </div>
             </div>
             <div>
-                <Select className='text-black' options={options} />
+                {/* <Select className='text-black' options={userOptions} /> */}
                 <Button onClick={() => setOpen(true)} variant="gradient">
                     Generate Application
                 </Button>
@@ -119,13 +144,21 @@ const Application = () => {
                     </Typography>
                     <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96">
                         <div className="mb-1 flex flex-col gap-6">
-                            <Input
+                            {/* <Input
                                 size="lg"
                                 label="To"
                                 name='to'
                                 onChange={formInputOnChange}
                                 value={formData.to}
+                            /> */}
+                            <Select options={userOptions}
+                                className="  w-full h-full text-black"
+                                name="toName"
+                                onChange={(newValue) => setFormData({ ...formData, ['toEmail']: newValue.label, ['toId']: newValue.value, ['docId']: user.uid + newValue.value, ['toName']: newValue.name })
+                                }
+                            // onCreateOption={handleCreate} 
                             />
+
                             <Input
                                 size="lg"
                                 label="Subject"
@@ -143,26 +176,58 @@ const Application = () => {
 
                             />
                         </div>
-                        <Button className="mt-6" fullWidth>
-                            Send
-                        </Button>
+                        {typeof formData.toId}
+                        {
+                            (!formData?.toId?.includes(user.uid)) ?
+                                (formData?.approved != undefined) && <Button onClick={() => sendAction()} className="mt-6" fullWidth>
+                                    Send
+                                </Button>
+                                 :
+                                <div className='flex gap-2'>
+                                    <Button onClick={() => applicationAction(formData.docId, 2)} style={{ backgroundColor: "green" }} className="mt-6 bg-teal-500 " fullWidth>
+                                        Accept
+                                    </Button>
+                                    <Button onClick={() => applicationAction(formData.docId, 1)} style={{ backgroundColor: "red" }} className="mt-6" fullWidth>
+                                        Deny
+                                    </Button>
+                                </div>
+                        }
                     </form>
                 </Card>
             </div>
+
         </div>
     );
 
 }
 
 
-const ApplicationMenu = (d) => {
+const ApplicationMenu = ({ data, action }) => {
     return (
-        <div>
-            hare Krishna
+        <div onClick={() => action()} className='border rounded-lg px-4 py-2 text-left text-slate-500 '>
             {
-                d.subject
+                `${data.subject} `
             }
         </div>
+    )
+}
+
+
+const YourAwesomeComponent = () => {
+    return (
+        <Container>
+            <Linkr href="#"
+                tooltip="Create note link"
+                icon="far fa-sticky-note" />
+            <Linkr href="#"
+                tooltip="Add user link"
+                icon="fas fa-user-plus" />
+            {/* className="fab-item btn btn-link btn-lg text-white" */}
+            <Buttonr
+                tooltip="The big plus button!"
+                icon="fas fa-plus"
+                rotate={true} />
+        </Container>
     )
 }
 
