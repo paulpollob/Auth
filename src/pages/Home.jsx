@@ -7,9 +7,9 @@ const Home = () => {
     const { user, setUser, logOut } = useContext(UserContext); 
     return (
         <div className='bg-slate-900 w-full h-full'> 
-           <Outlet></Outlet>
-           <button onClick={()=>logOut()}>SignOut</button>
+           {/* <button onClick={()=>logOut()}>SignOut</button> */}
            <Header></Header>
+           <Outlet></Outlet>
         </div>
     );
 };
