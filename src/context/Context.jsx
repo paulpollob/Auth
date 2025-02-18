@@ -36,11 +36,6 @@ const Context = ({ children }) => {
         return () => unsubscribe(); 
     }, [])
 
-    const options = [
-        { value: 'chocolate', label: 'Chocolate' },
-        { value: 'strawberry', label: 'Strawberry' },
-        { value: 'vanilla', label: 'Vanilla' }
-    ]
 
 
     useEffect(()=>{
@@ -61,6 +56,9 @@ const Context = ({ children }) => {
 
 
 
+
+
+
     const register = (email, password) => createUserWithEmailAndPassword(auth, email, password)
     const login = (email, password) => signInWithEmailAndPassword(auth, email, password)
     const logOut = () => {
@@ -72,8 +70,9 @@ const Context = ({ children }) => {
     const sccMsg = (msg) => toast.success(msg)
 
 
+    const [userInfo, setUserInfo] = useState({});
     const [userOptions, setUserOptions] = useState([])
-    const [allUsers, setAllUsers] = useState({});
+    const [allUsers, setAllUsers] = useState([]);
     const [user, setUser] = useState("notLoadedYet");
     const [applications, setApplications] = useState([])
 
@@ -94,15 +93,6 @@ const Context = ({ children }) => {
         // }
         // return () => getUsers(); 
 
-
-
-
-
-
-
-
-
-
         if (user && user !== "no user") {
             // Fetch applications when user is available
             const getUsers = async () => {
@@ -118,9 +108,24 @@ const Context = ({ children }) => {
             getUsers();
         } 
     }, [user])
+    useEffect(()=>{
+        
+        const userInfo = allUsers?.find(d=>d.uid===user.uid)
+        setUserInfo(userInfo);
+        // const getUsers = async () => {
+        //     const querySnapshot = await getDocs(collection(db, "users"));
+        //     let dt = []
+        //     querySnapshot.forEach((doc) => { 
+        //         setAllUsers(doc.data())
+        //         dt.push({value:doc.data().uid, label:doc.data().email, name:doc.data().name})
+        //     });
+        //     setUserOptions(dt)
+        // }
+        // return () => getUsers(); 
+    }, [allUsers, user ])
 
 
-    const value = { user, setUser, login, register, logOut, infoMsg, warnMsg, errMsg, sccMsg, allUsers, applications, userOptions, db }
+    const value = { user, setUser, login, register, logOut, infoMsg, warnMsg, errMsg, sccMsg, allUsers, applications, userOptions, db, userInfo }
     return (
         <UserContext.Provider value={value}>
             {children}
