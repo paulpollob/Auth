@@ -3,7 +3,7 @@ import React from 'react';
 const Message = () => {
     return (
         <div>
-            Hare Krishna from message
+            From Message for future
         </div>
     );
 };

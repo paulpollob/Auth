@@ -76,17 +76,14 @@ const Registration = () => {
                     await setFormData({ ...formData, ['uid']: user.uid })
                     const newFform = { ...formData, ['uid']: user.uid }
                     const res = await setDoc(doc(db, "users", user.uid), newFform);
-
-                    console.log("HK:response ")
                     console.log(res)
                     // await setFormData({ ...formData, ['uid']: user.uid })
-                    console.log("HK user: ", user)
                     sccMsg("successfull!!!")
                 })
                 .catch((error) => {
                     const errorCode = error.code;
                     const errorMessage = error.message;
-                    console.log("HK error register: ", errorMessage)
+                    console.log("error register: ", errorMessage)
                     errMsg(errorMessage)
                     // ..
                 });
