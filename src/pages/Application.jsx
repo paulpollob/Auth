@@ -21,7 +21,7 @@ import { UserContext } from '../context/Context';
 import { Container, Button as Buttonr, Link as Linkr } from 'react-floating-action-button'
 
 const Application = () => {
-    const { user, applications, userOptions, db, sccMsg, errMsg } = useContext(UserContext)
+    const { user, applications, userOptions, db, sccMsg, errMsg, userInfo } = useContext(UserContext)
     const [msg, setMsg] = useState([]);
     const [title, setTitle] = useState("");
     const [body, setBody] = useState("");
@@ -55,8 +55,7 @@ const Application = () => {
     }
     const generateButtonAction = async () => {
         // const prompt = `My name is Prokash. My background is computer science and engineering. The application subject is: '${title}' and the provided text is: '${body}'. Generate a formal application for me in JSON format with attributes like 'subject', 'body', 'to', 'from'. Only return JSON data without any explanations.`;
-        const prompt = `My name is Prokash. My background is computer science and engineering. about the application the provided text is: '${providedText}'. Generate a formal application for me in JSON format with attributes like 'subject', 'body', 'to', 'from'. Only return JSON data without any explanations.`;
-        // const model="gemini-2.0-flash";
+        const prompt = `My name is ${userInfo.name}. My background is computer science and engineering. about the application the provided text is: '${providedText}'. Generate a formal application for me in JSON format with attributes like 'subject', 'body', 'to', 'from'. Only return JSON data without any explanations.`;
         const genAI = new GoogleGenerativeAI("AIzaSyA_nby_S6KHpNptXTcpgcSc3ZDGiOPP944");
         const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
         const result = await model.generateContent(prompt);
@@ -117,8 +116,7 @@ const Application = () => {
                     }
                 </div>
             </div>
-            <div>
-                {/* <Select className='text-black' options={userOptions} /> */}
+            <div className=' text-slate-300'> 
                 <Button onClick={() => setOpen(true)} variant="gradient">
                     Generate Application
                 </Button>
@@ -151,21 +149,13 @@ const Application = () => {
                     <Typography color="gray" className="mt-1 font-normal">
                         Your Generated Application is here...
                     </Typography>
-                    <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96">
-                        <div className="mb-1 flex flex-col gap-6">
-                            {/* <Input
-                                size="lg"
-                                label="To"
-                                name='to'
-                                onChange={formInputOnChange}
-                                value={formData.to}
-                            /> */}
+                    <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96 text-slate-300">
+                        <div className="mb-1 flex flex-col gap-6"> 
                             <Select options={userOptions}
                                 className="  w-full h-full text-black"
                                 name="toName"
                                 onChange={(newValue) => setFormData({ ...formData, ['toEmail']: newValue.label, ['toId']: newValue.value, ['docId']: user.uid + newValue.value+Date.now(), ['toName']: newValue.name })
-                                }
-                            // onCreateOption={handleCreate} 
+                                } 
                             />
 
                             <Input
@@ -192,11 +182,7 @@ const Application = () => {
                                 (formData?.approved == null) &&
                                     <Button onClick={() => sendAction()} className="mt-6" fullWidth>
                                         Send
-                                    </Button>
-                                    // :
-                                    // <Button onClick={() => sendAction()} className="mt-6" fullWidth>
-                                    //     Send
-                                    // </Button>
+                                    </Button> 
                                 :
                                 <div className='flex gap-2'>
                                     <Button onClick={() => applicationAction(formData.docId, 2)} style={{ backgroundColor: "green" }} className="mt-6 bg-teal-500 " fullWidth>

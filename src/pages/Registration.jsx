@@ -6,11 +6,13 @@ import Loading from '../components/Loading';
 // import { FloatingLabel } from 'flowbite-react';
 import Field from '../components/Field';
 import { doc, setDoc } from 'firebase/firestore';
+import Security from "../assets/security.avif";
+
 
 const Registration = () => {
 
     const styles = {
-        backgroundImage: `url(${sample})`,
+        backgroundImage: `url(${Security})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         height: "100vh",
@@ -56,7 +58,7 @@ const Registration = () => {
         }
         if (!formData.phoneNumber.trim()) {
             newErrors.phoneNumber = "Phone number is required.";
-        } else if (!/^\d{10}$/.test(formData.phoneNumber)) {
+        } else if (!/^\d{11}$/.test(formData.phoneNumber)) {
             newErrors.phoneNumber = "Phone number must be 10 digits.";
         }
         if (!formData.address.trim()) newErrors.address = "Address is required.";

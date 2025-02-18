@@ -43,10 +43,12 @@ const Context = ({ children }) => {
         const getUsers = async () => {
             const querySnapshot = await getDocs(collection(db, "users"));
             let dt = []
-            querySnapshot.forEach((doc) => { 
-                setAllUsers(doc.data())
+            let allusr = []
+            querySnapshot.forEach((doc) => {  
+                allusr.push(doc.data())
                 dt.push({value:doc.data().uid, label:doc.data().email, name:doc.data().name})
             });
+            setAllUsers(allusr)
             setUserOptions(dt)
         }
         return () => getUsers(); 
@@ -77,21 +79,6 @@ const Context = ({ children }) => {
     const [applications, setApplications] = useState([])
 
     useEffect(()=>{
-        
-        // const getUsers = async () => {
-        //     const querySnapshot = await getDocs(collection(db, "applications")); 
-        //     console.log("Hk user: ", user)
-        //     let d = [];
-        //     querySnapshot.forEach((doc) => {
-        //         // console.log(`${doc.id} => ${doc.data()}`);
-        //         console.log("HK doc: "+doc.id+" user: "+user.uid)
-        //         if(doc.data().docid?.includes(user.uid)){
-        //             d.push(doc.data())
-        //         } 
-        //     });
-        //     setApplications(d)
-        // }
-        // return () => getUsers(); 
 
         if (user && user !== "no user") {
             // Fetch applications when user is available
@@ -108,20 +95,10 @@ const Context = ({ children }) => {
             getUsers();
         } 
     }, [user])
-    useEffect(()=>{
-        
+    useEffect(()=>{ 
+        // allUsers?.forEach(d=>console.log(d)) 
         const userInfo = allUsers?.find(d=>d.uid===user.uid)
-        setUserInfo(userInfo);
-        // const getUsers = async () => {
-        //     const querySnapshot = await getDocs(collection(db, "users"));
-        //     let dt = []
-        //     querySnapshot.forEach((doc) => { 
-        //         setAllUsers(doc.data())
-        //         dt.push({value:doc.data().uid, label:doc.data().email, name:doc.data().name})
-        //     });
-        //     setUserOptions(dt)
-        // }
-        // return () => getUsers(); 
+        setUserInfo(userInfo); 
     }, [allUsers, user ])
 
 

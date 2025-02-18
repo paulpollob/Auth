@@ -7,11 +7,13 @@ import Registration from '../pages/Registration'
 import PrivateRoute from '../PrivateRoute/PrivateRoute';
 import Application from '../pages/Application';
 import Message from '../pages/Message';
+import Main from '../pages/Main';
 
-const Router = createBrowserRouter([
-    { path: "/", element: <PrivateRoute><Home></Home></PrivateRoute>},
-    { path: '/home', element: <PrivateRoute><Home></Home></PrivateRoute>,
+const Router = createBrowserRouter([ 
+    { path: '/', element: <PrivateRoute><Main></Main></PrivateRoute>,
         children: [
+            {path: "/", element: <Home></Home>},
+            {path: "/home", element: <Home></Home>},
             {path: "/home/application", element: <Application></Application>},
             {path: "/home/message", element: <Message></Message>}
         ]
