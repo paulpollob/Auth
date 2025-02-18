@@ -40,7 +40,8 @@ const LogIn = () => {
     const onSubmit = (data) => {
         console.log('Form Submitted:', data);
         // login("paul@paul.com", "Abcdef@5")
-        login(data?.email, data?.password)
+        console.log("hk: ", formData.email, formData.password)
+        login(formData?.email, formData?.password)
             .then((userCredential) => {
                 const user = userCredential.user;
                 sccMsg("successfull login")
@@ -101,7 +102,7 @@ const LogIn = () => {
                                     </div> */}
 
                                     {/* Submit Button */}
-                                    <button type="submit" className="submit-button bg-slate-400 text-slate-100">
+                                    <button type="submit" className="submit-button bg-slate-400 text-slate">
                                         Login
                                     </button>
                                 </form>
