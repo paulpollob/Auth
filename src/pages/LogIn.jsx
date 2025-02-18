@@ -101,7 +101,7 @@ const LogIn = () => {
                                     </div> */}
 
                                     {/* Submit Button */}
-                                    <button type="submit" className="submit-button text-slate-100">
+                                    <button type="submit" className="submit-button bg-slate-400 text-slate-100">
                                         Login
                                     </button>
                                 </form>

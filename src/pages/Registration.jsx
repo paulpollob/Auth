@@ -119,7 +119,7 @@ const Registration = () => {
                                         />
                                         {errors.address && <small className="error">{errors.address}</small>}
                                     </div>
-                                    <button className='text-slate-100' type="submit">Register</button>
+                                    <button className='bg-slate-400 text-slate-100' type="submit">Register</button>
                                 </form>
 
                                 <p className="footer-text">
